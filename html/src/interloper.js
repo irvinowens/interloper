@@ -3,7 +3,7 @@
 * The main file for the interloper javascript library
 */
 
-wsAddr = 'ws://ec2-54-184-126-128.us-west-2.compute.amazonaws.com:1337';
+wsAddr = 'ws://127.0.0.1:1337';
 
 var Interloper = (function(){
   window.WebSocket = window.WebSocket || window.MozWebSocket;
