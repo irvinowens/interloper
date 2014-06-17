@@ -3,9 +3,11 @@
 * The main file for the interloper javascript library
 */
 
-wsAddr = 'ws://127.0.0.1:1337';
+wsAddr = 'ws://ec2-54-184-126-128.us-west-2.compute.amazonaws.com:1337';
 
 var Interloper = (function(){
+  var dirty = true;
+  var postCache = { };
   window.WebSocket = window.WebSocket || window.MozWebSocket;
   console.log("Connecting websocket");
   try{
@@ -33,17 +35,18 @@ var Interloper = (function(){
     var onCloseHandler = connection.onclose;
     var onErrorHandler = connection.onerror;
     var onMessageHandler = connection.onmessage;
-    connection = new WebSocket(wsAddr);
-    connection.onopen = onOpenHandler;
-    connection.onclose = onCloseHandler;
-    connection.onerror = onErrorHandler;
-    connection.onmessage = onMessageHandler;
-    console.log("Websocket connection re-established");
+    setTimeout(function(){
+       connection = new WebSocket(wsAddr);
+       connection.onopen = onOpenHandler;
+       connection.onclose = onCloseHandler;
+       connection.onerror = onErrorHandler;
+       connection.onmessage = onMessageHandler;
+       console.log("Websocket connection re-established");
+    }, 1000);
   };
 
   connection.onmessage = function(message){
         var json = null;
-        console.log("Server Message " + message.data);
         try{
           json = JSON.parse(message.data);
           switch(json.action){
@@ -68,11 +71,12 @@ var Interloper = (function(){
             case "message":
               onMessage(json);
             break;
+            default:
+              console.log("Received a message that we can't process " + message.data);
+              break;
           }
         } catch(e){
           console.log('This dosen\'t look like valid JSON:  ', message.data, ' error ' + e);
-          document.getElementById("notification").innerHTML = "Connection error, click up here to reconnect!";
-          document.getElementById("notification").className = "visible";
           return;
         }
         // handle incoming message
@@ -153,7 +157,7 @@ var Interloper = (function(){
          console.log("This browser does not support notifications");
          return;
        }
-       else if(Notification.permission === "granted"){
+       else if(Notification.permission == "granted"){
          //console.log("Showing notification");
          var notification = new Notification('Interloper Mention!', { icon: 'img/bt_rocket.png', body: htmlContent.replace(regex, " ") });
        }
@@ -166,7 +170,7 @@ var Interloper = (function(){
                Notification.permission = permission;
              }
 
-             if(permission === "granted"){
+             if(permission == "granted"){
                console.log("The user granted the notifications, so let's go");
                var notification = new Notification('Interloper Mention!', { icon: 'img/bt_rocket.png', body: htmlContent.replace(regex, " ") });
              }
@@ -192,6 +196,7 @@ var Interloper = (function(){
     }
     notifyIfMessageContainsMe(localStorage["interloper.username"], data.messageData);
     //console.log("Saving content!");
+    Interloper.setDirty();
     writeNextPost(data.picUri, decodeURI(data.messageData), user, data.hash, dateTime, href);
   };
 
@@ -251,6 +256,7 @@ var Interloper = (function(){
    // internal communication method
 
    var comm = function(message){
+     //console.log("Sending: " + message);
      var errDialog = function(){
         console.log("Error sending! " + e);
         document.getElementById("notification").innerHTML = "Connection error, click to reconnect!";
@@ -288,7 +294,12 @@ var Interloper = (function(){
      //console.log("Number of posts " + numPosts);
      for(var i=0; i < numPosts; i++){
        //console.log("Sending " + localStorage["interloper.posts." + i]);
-       var post = JSON.parse(localStorage["interloper.posts." + i]);
+       var post = null;
+       if(Interloper.getItemFromCache("interloper.posts." + i) == null){
+          post = JSON.parse(localStorage["interloper.posts." + i]);
+       }else{
+         post = Interloper.getItemFromCache("interloper.posts." + i);
+       }
        sendPostMessage(post.user, decodeURI(post.postContent), post.picuri, post.hash, post.href);
        if(i > 1000){
          break;
@@ -351,10 +362,25 @@ var Interloper = (function(){
      localStorage["interloper.posts." + numPosts] = '{ "picuri": "' + picuri +
                   '", "postContent": "' + encodeURI(content) + '", "user" : "' + user + '", "hash" : "' + hash + '", "time":"' + dateTime + '","href":"' + href + '" }';
      localStorage["interloper.posts.count"] = numPosts + 1;
+     Interloper.setDirty();
    }
 
    // public methods
    return {
+       // only refresh if flag is dirty
+       setDirty : function(){
+          dirty = true;
+       },
+       getDirty : function(){
+         return dirty;
+       },
+       // cache posts
+       getItemFromCache : function(key){
+         return postCache[key];
+       },
+       addItemToCache : function(key,value){
+         postCache[key] = value;
+       },
        // get blocklist
        getBlockedUsers : function(){
             return getBlockList();
@@ -394,6 +420,7 @@ var Interloper = (function(){
            addPost(picuri, content, user, hash, dateTime, href);
          }
          sendPostMessage(localStorage["interloper.username"], content, picuri, hash, href);
+         Interloper.setDirty();
        },
 
        // gets all of the posts
@@ -408,7 +435,13 @@ var Interloper = (function(){
          var postCount = parseInt(localStorage["interloper.posts.count"]);
          //console.log("Post Count: " + postCount);
          for(var i=(postCount - 1); i > -1; i--){
-           var parsedRecord = JSON.parse(localStorage["interloper.posts." + i]);
+           var parsedRecord = null;
+           if(Interloper.getItemFromCache("interloper.posts." + i) == null){
+             parsedRecord = JSON.parse(localStorage["interloper.posts." + i]);
+             Interloper.addItemToCache(["interloper.posts." + i],parsedRecord);
+           }else{
+             parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
+           }
            if(isUserBlocked(parsedRecord.user) == false){
              if(searchText == null){
                arr.push(parsedRecord);
@@ -435,18 +468,62 @@ var Interloper = (function(){
           var postCount = parseInt(localStorage["interloper.posts.count"]);
           //console.log("Post Count: " + postCount);
           for(var i=(postCount - 1); i > -1; i--){
-            var parsedRecord = JSON.parse(localStorage["interloper.posts." + i]);
+            var parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
             if(isUserBlocked(parsedRecord.user) == false){
               var obj = parsedRecord
               if(obj.href == topicHash){
                 var content = decodeURI(obj.postContent);
                 arr.push(obj);
+                var otherConvos = Interloper.getConversations(obj.hash);
+                arr = arr.concat(otherConvos);
               }
             }
           }
           return arr.sort(function(a,b){ return a.time - b.time}).reverse();
        },
 
+       // check to see if this object has conversations
+       hasConversations : function(hash){
+         if(!supports_html5_storage()) {
+           console.log("This browser doesn't support localstorage!!!!");
+           return false;
+         }
+         var arr = [ ];
+         var postCount = parseInt(localStorage["interloper.posts.count"]);
+         //console.log("Post Count: " + postCount);
+         for(var i=(postCount - 1); i > -1; i--){
+          var parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
+          if(isUserBlocked(parsedRecord.user) == false){
+            var obj = parsedRecord
+            if(obj.href == hash){
+              return true;
+              break;
+            }
+           }
+          }
+         return false;
+       },
+       // check to see if this item is part of a conversation
+       isPartOfConvo : function(href){
+          if(!supports_html5_storage()) {
+            console.log("This browser doesn't support localstorage!!!!");
+            return false;
+          }
+          var arr = [ ];
+          var postCount = parseInt(localStorage["interloper.posts.count"]);
+          //console.log("Post Count: " + postCount);
+          for(var i=(postCount - 1); i > -1; i--){
+           var parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
+           if(isUserBlocked(parsedRecord.user) == false){
+             var obj = parsedRecord;
+             if(obj.hash == href){
+               return true;
+               break;
+             }
+            }
+           }
+          return false;
+       },
        //login
        login : function(uname,pwd){
          loginUser(uname, pwd);
@@ -625,7 +702,9 @@ var PostList = React.createClass({
     };
   },
   componentWillMount : function(e) {
-    setInterval(function() { this.setState({
+    setInterval(function() {
+                 if(Interloper.getDirty() == true){
+                            this.setState({
                              items: Interloper.getPosts(this.state.searchText),
                              searchText: this.state.searchText,
                              blocked: this.state.blocked,
@@ -633,8 +712,11 @@ var PostList = React.createClass({
                              conversationItems: this.state.conversationItems,
                              conversationTopic: this.state.conversationTopic,
                              conversationVisible: this.state.conversationVisible
-                            })}.bind(this),
-                 this.props.pollInterval);
+                            });
+                            Interloper.setDirty();
+                 }
+               }.bind(this),
+               this.props.pollInterval);
   },
   onChange : function(e){
     this.setState({
@@ -683,6 +765,7 @@ var PostList = React.createClass({
      })
   },
   openConversation : function(e){
+     console.log("JSON text " + e.target.getAttribute('alt'));
      var obj = JSON.parse(e.target.getAttribute('alt'));
      var conversationItems = Interloper.getConversations(obj.hash);
      this.setState({
@@ -725,15 +808,31 @@ var PostList = React.createClass({
         d.setUTCMilliseconds(timeEpoch);
         return d.toLocaleString();
       }
+      var hasConvos = Interloper.hasConversations(item.hash);
+      var isPartOfConvo = Interloper.isPartOfConvo(item.href);
       var itemDateTime = getDateTime(item.time);
-      return <div className="postItem" key={item.hash} ref="postList">
+      var anchorMarkup = (function(){
+                          if(isPartOfConvo){
+                              return "[Conversation Root](#" + item.href + ")"
+                          }else{
+                              return ""
+                          }
+                        })();
+      var conversationIndication = (function(){
+                                          if(hasConvos){
+                                            return "join conversation"
+                                          }else{
+                                            return "start conversation"
+                                          }
+                                    })();
+      return <div className="postItem" key={item.hash} ref="postList"><a id={item.hash} />
                       <div dangerouslySetInnerHTML={{
-                           __html : converter.makeHtml(decodeURI(item.postContent).replace(/&/g, "&amp;").replace(/</g, "&lt;"))
+                           __html : converter.makeHtml(decodeURI(item.postContent).replace(/&/g, "&amp;").replace(/</g, "&lt;") + " " + anchorMarkup)
                       }} />
                       <div>
                         <span className="smalltext">{item.user} ( <a href="javascript://noscript;" onClick={this.manageBlock} alt={item.user}>manage</a> |
                                                                   <a href="javascript://noscript;" onClick={this.blockUser} alt={item.user}> block</a> )
-                         - {itemDateTime} - <a href="javascript://noscript;" onClick={this.openConversation} alt={JSON.stringify(item)}>conversation</a></span>
+                         - {itemDateTime} - <a href="javascript://noscript;" onClick={this.openConversation} alt={JSON.stringify(item)}>{conversationIndication}</a></span>
                       </div>
                     </div>;
     };

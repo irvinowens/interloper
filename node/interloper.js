@@ -32,6 +32,12 @@ function htmlEntities(str) {
 }
 
 /**
+* Server hostname to prevent cross-domain attacks
+*/
+
+var serverHostname = "http://ec2-54-184-126-128.us-west-2.compute.amazonaws.com";
+
+/**
 * Helper method for determining username uniquenesss
 */
 
@@ -43,7 +49,18 @@ function checkIfUserExists(name){
  * HTTP server
  */
 var server = http.createServer(function(request, response) {
-    // Not important for us. We're writing WebSocket server, not HTTP server
+    console.log((new Date()) + ' HTTP server. URL' + request.url + ' requested.');
+    if (request.url === '/status') {
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        var responseObject = {
+            currentClients: clients.length,
+            s2sConnected : s2s.gets2sconns()
+        }
+        response.end(JSON.stringify(responseObject));
+    } else {
+        response.writeHead(404, {'Content-Type': 'text/plain'});
+        response.end('Sorry, unknown url');
+    }
 });
 server.listen(webSocketsServerPort, function() {
     console.log((new Date()) + " Server is listening on port " + webSocketsServerPort);
@@ -55,8 +72,28 @@ server.listen(webSocketsServerPort, function() {
 var wsServer = new webSocketServer({
     // WebSocket server is tied to a HTTP server. WebSocket request is just
     // an enhanced HTTP request. For more info http://tools.ietf.org/html/rfc6455#page-6
-    httpServer: server
+    httpServer: server,
+    autoAcceptConnections : false
 });
+
+exports.s2sBroadcast = function(message){
+   for(var i=0;i < clients.length; i++){
+       clients[i].conn.sendUTF(message);
+   }
+}
+
+/**
+* Determine if the origin is permitted by checking it against
+* the servers' hostname set above
+*/
+
+var originIsAllowed = function(origin){
+  if(origin == serverHostname){
+    return true;
+  }else{
+    return false;
+  }
+}
 
 // This callback function is called every time someone
 // tries to connect to the WebSocket server
@@ -66,6 +103,11 @@ wsServer.on('request', function(request) {
     // accept connection - you should check 'request.origin' to make sure that
     // client is connecting from your website
     // (http://en.wikipedia.org/wiki/Same_origin_policy)
+    if(!originIsAllowed(request.origin)){
+      request.reject();
+      console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
+      return;
+    }
     var connection = request.accept(null, request.origin);
     // we need to know client index to remove them on 'close' event
     var index = clients.push({ conn: connection, last_message_time: new Date().getTime()}) - 1;
@@ -74,14 +116,6 @@ wsServer.on('request', function(request) {
     console.log("Client Address " + address);
     var userName = false;
     var userLoggedIn = false;
-
-    exports.s2sBroadcast = function(message){
-       for(var i=0;i < clients.length; i++){
-         if(i != index){
-           clients[i].conn.sendUTF(message);
-         }
-       }
-    }
 
 
     console.log((new Date()) + ' Connection accepted.');
@@ -99,7 +133,7 @@ wsServer.on('request', function(request) {
             }catch(e){
               console.error("There was a problem parsing the message " + message.utf8Data + ", " + e);
             }
-            console.log("Successfully parsed message from client " + clients[index]);
+            //console.log("Successfully parsed message from client " + clients[index]);
             if(typeof(clients[index]) == "undefined"){
               console.error("For some reason the index or your client was dropped, please reconnect");
               connection.close();
@@ -199,7 +233,7 @@ wsServer.on('request', function(request) {
                   for (var i=0; i < clients.length; i++) {
                       console.log("Sending to remote address " + clients[i].conn.remoteAddress);
                       if(i != index){
-                          console.log("Sending message to user " + clients[i].conn.remoteAddress);
+                          //console.log("Sending message to user " + clients[i].conn.remoteAddress);
                           try{
                             clients[i].conn.sendUTF(json);
                           }catch(e){
