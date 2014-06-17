@@ -1,6 +1,6 @@
 /*! interloper - v0.0.1 - 2014-06-17
 * https://github.com/irvinowens/interloper
-* Copyright (c) 2014 Irvin Owens Jr; Licensed  */
+* Copyright (c) 2014 Irvin Owens Jr; Licensed MIT */
 var RTCPeerConnection = null;
 var getUserMedia = null;
 var attachMediaStream = null;
@@ -19432,6 +19432,8 @@ var Interloper = (function(){
            loginUser(localStorage["interloper.username"],
                      localStorage["interloper.password"]);
       }
+      document.getElementById("notification").innerHTML = "Everything is OK!";
+      document.getElementById("notification").className = "invisible";
   };
 
   connection.onerror = function(error){
@@ -19637,11 +19639,7 @@ var Interloper = (function(){
 
    var pingInterval = setInterval(function(){
       comm('{ "action":"ping" }');
-   }, (10 * (60 * 1000)))
-
-   var historyInterval = setInterval(function(){
-         comm('{ "action":"ping" }');
-      }, (10 * (60 * 1000)))
+   }, (2 * (60 * 1000)))
 
    var waitForConnection = function(){
        setTimeout(

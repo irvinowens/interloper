@@ -31,6 +31,8 @@ var Interloper = (function(){
            loginUser(localStorage["interloper.username"],
                      localStorage["interloper.password"]);
       }
+      document.getElementById("notification").innerHTML = "Everything is OK!";
+      document.getElementById("notification").className = "invisible";
   };
 
   connection.onerror = function(error){
@@ -236,11 +238,7 @@ var Interloper = (function(){
 
    var pingInterval = setInterval(function(){
       comm('{ "action":"ping" }');
-   }, (10 * (60 * 1000)))
-
-   var historyInterval = setInterval(function(){
-         comm('{ "action":"ping" }');
-      }, (10 * (60 * 1000)))
+   }, (2 * (60 * 1000)))
 
    var waitForConnection = function(){
        setTimeout(
