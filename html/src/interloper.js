@@ -3,7 +3,15 @@
 * The main file for the interloper javascript library
 */
 
+/**
+* The Address for the remote websocket server we want to use
+*/
+
 wsAddr = 'ws://ec2-54-184-126-128.us-west-2.compute.amazonaws.com:1337';
+
+/**
+* The Interloper scope contains the model
+*/
 
 var Interloper = (function(){
   var dirty = true;
@@ -371,6 +379,10 @@ var Interloper = (function(){
        setDirty : function(){
           dirty = true;
        },
+       // clean up
+       setClean : function(){
+          dirty = false;
+       },
        getDirty : function(){
          return dirty;
        },
@@ -435,8 +447,8 @@ var Interloper = (function(){
          var postCount = parseInt(localStorage["interloper.posts.count"]);
          //console.log("Post Count: " + postCount);
          for(var i=(postCount - 1); i > -1; i--){
-           var parsedRecord = null;
-           if(Interloper.getItemFromCache("interloper.posts." + i) == null){
+           var parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
+           if(parsedRecord == null){
              parsedRecord = JSON.parse(localStorage["interloper.posts." + i]);
              Interloper.addItemToCache(["interloper.posts." + i],parsedRecord);
            }else{
@@ -444,12 +456,16 @@ var Interloper = (function(){
            }
            if(isUserBlocked(parsedRecord.user) == false){
              if(searchText == null){
+               parsedRecord.conversations = Interloper.getConversations(parsedRecord.hash);
+               parsedRecord.isPartOfConvo = Interloper.isPartOfConvo(parsedRecord.href);
                arr.push(parsedRecord);
              }else{
                var obj = parsedRecord
                var content = decodeURI(obj.postContent);
                if(content.toLowerCase().search(searchText.toLowerCase()) != -1 ||
                   obj.user.toLowerCase().search(searchText.toLowerCase()) != -1){
+                 obj.conversations = Interloper.getConversations(obj.hash);
+                 parsedRecord.isPartOfConvo = Interloper.isPartOfConvo(obj.href);
                  arr.push(obj);
                }
              }
@@ -469,6 +485,12 @@ var Interloper = (function(){
           //console.log("Post Count: " + postCount);
           for(var i=(postCount - 1); i > -1; i--){
             var parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
+            if(parsedRecord == null){
+              parsedRecord = JSON.parse(localStorage["interloper.posts." + i]);
+              Interloper.addItemToCache(["interloper.posts." + i],parsedRecord);
+            }else{
+              parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
+            }
             if(isUserBlocked(parsedRecord.user) == false){
               var obj = parsedRecord
               if(obj.href == topicHash){
@@ -492,13 +514,19 @@ var Interloper = (function(){
          var postCount = parseInt(localStorage["interloper.posts.count"]);
          //console.log("Post Count: " + postCount);
          for(var i=(postCount - 1); i > -1; i--){
-          var parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
-          if(isUserBlocked(parsedRecord.user) == false){
-            var obj = parsedRecord
-            if(obj.href == hash){
-              return true;
-              break;
-            }
+           var parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
+           if(parsedRecord == null){
+              parsedRecord = JSON.parse(localStorage["interloper.posts." + i]);
+              Interloper.addItemToCache(["interloper.posts." + i],parsedRecord);
+           }else{
+              parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
+           }
+           if(isUserBlocked(parsedRecord.user) == false){
+              var obj = parsedRecord
+              if(obj.href == hash){
+                return true;
+                break;
+              }
            }
           }
          return false;
@@ -704,6 +732,7 @@ var PostList = React.createClass({
   componentWillMount : function(e) {
     setInterval(function() {
                  if(Interloper.getDirty() == true){
+                            console.log("Updating React state for list");
                             this.setState({
                              items: Interloper.getPosts(this.state.searchText),
                              searchText: this.state.searchText,
@@ -713,7 +742,7 @@ var PostList = React.createClass({
                              conversationTopic: this.state.conversationTopic,
                              conversationVisible: this.state.conversationVisible
                             });
-                            Interloper.setDirty();
+                            Interloper.setClean();
                  }
                }.bind(this),
                this.props.pollInterval);
@@ -767,7 +796,7 @@ var PostList = React.createClass({
   openConversation : function(e){
      console.log("JSON text " + e.target.getAttribute('alt'));
      var obj = JSON.parse(e.target.getAttribute('alt'));
-     var conversationItems = Interloper.getConversations(obj.hash);
+     var conversationItems = obj.conversations;
      this.setState({
        items: this.state.items,
        searchText : this.state.searchText,
@@ -790,13 +819,15 @@ var PostList = React.createClass({
      });
   },
   updateConvo : function(e){
+    var items = Interloper.getPosts(this.state.searchText);
+    e.conversations = Interloper.getConversations(e.hash);
     this.setState({
-       items: this.state.items,
+       items: items,
        searchText : this.state.searchText,
        blocked: this.state.blocked,
        blocklistVisibility: this.state.blocklistVisibility,
-       conversationItems: Interloper.getConversations(e),
-       conversationTopic: this.state.conversationTopic,
+       conversationItems: e.conversations,
+       conversationTopic: e,
        conversationVisible : this.state.conversationVisible
      });
   },
@@ -808,8 +839,14 @@ var PostList = React.createClass({
         d.setUTCMilliseconds(timeEpoch);
         return d.toLocaleString();
       }
-      var hasConvos = Interloper.hasConversations(item.hash);
-      var isPartOfConvo = Interloper.isPartOfConvo(item.href);
+      var hasConvos = (function(){
+                        if(item.conversations.length == 0) {
+                          return false;
+                        } else {
+                          return true;
+                        }
+                       })();
+      var isPartOfConvo = item.isPartOfConvo;
       var itemDateTime = getDateTime(item.time);
       var anchorMarkup = (function(){
                           if(isPartOfConvo){
@@ -909,7 +946,7 @@ var ConversationWindow = React.createClass({
        Interloper.addPost(null, postText, localStorage["interloper.username"],
                           md5(postText), new Date().getTime(), subjectHash);
        this.refs.reply.getDOMNode().value = "";
-       this.props.update(subjectHash);
+       this.props.update(this.props.topic);
     },
     render: function(){
       var getDateTime = function(timeEpoch){
@@ -940,4 +977,4 @@ var ConversationWindow = React.createClass({
       )
     }
 });
-React.renderComponent(<PostList pollInterval={2000} />, document.getElementById("posts"));
+React.renderComponent(<PostList pollInterval={10000} />, document.getElementById("posts"));
