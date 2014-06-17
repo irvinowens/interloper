@@ -204,8 +204,8 @@ var Interloper = (function(){
     }
     notifyIfMessageContainsMe(localStorage["interloper.username"], data.messageData);
     //console.log("Saving content!");
-    Interloper.setDirty();
     writeNextPost(data.picUri, decodeURI(data.messageData), user, data.hash, dateTime, href);
+    Interloper.setDirty();
   };
 
    // set the post count object so that it isn't null
