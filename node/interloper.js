@@ -5,9 +5,10 @@
 process.title = 'interloper-svr';
 
 var s2s = require('./s2s');
+var config = require('./config');
 
 // Port where we'll run the websocket server
-var webSocketsServerPort = 1337;
+var webSocketsServerPort = config.getC2sWebSocketServerPort();
 
 // websocket and http servers
 var webSocketServer = require('websocket').server;
@@ -35,7 +36,7 @@ function htmlEntities(str) {
 * Server hostname to prevent cross-domain attacks
 */
 
-var serverHostname = "http://ec2-54-184-126-128.us-west-2.compute.amazonaws.com";
+var serverHostname = config.getFullServerHostname();
 
 /**
 * Helper method for determining username uniquenesss

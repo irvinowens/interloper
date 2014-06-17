@@ -1,13 +1,9 @@
 CACHE MANIFEST
-# rev 122
+# rev 125
 NETWORK:
 *
 CACHE:
 index.html
-js/adapter.js
-js/json.js
-js/md5.js
-js/showdown.js
-src/interloper.js
+js/interloper.min.js
 img/bt_rocket.png
 css/interloper.css

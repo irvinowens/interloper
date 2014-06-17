@@ -3,6 +3,7 @@
 */
 
 var Dao = require('./dao');
+var config = require('./config');
 
 // We should be able to create a new user
 exports.createUser = function(userName, ipAddress, password, cb){

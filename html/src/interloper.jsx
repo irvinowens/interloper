@@ -1,4 +1,7 @@
 /** @jsx React.DOM */
+
+
+
 /**
 * The main file for the interloper javascript library
 */
@@ -757,6 +760,7 @@ var PostList = React.createClass({
       conversationTopic: this.state.conversationTopic,
       conversationVisible: this.state.conversationVisible
     })
+    Interloper.setDirty();
   },
   manageBlock : function(e){
      this.setState({
@@ -977,4 +981,4 @@ var ConversationWindow = React.createClass({
       )
     }
 });
-React.renderComponent(<PostList pollInterval={10000} />, document.getElementById("posts"));
+React.renderComponent(<PostList pollInterval={5000} />, document.getElementById("posts"));

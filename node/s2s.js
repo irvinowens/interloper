@@ -5,6 +5,8 @@
 * from a current interloper server to this servers' clients
 */
 
+var config = require('./config');
+
 const il = require("./interloper");
 
 // websocket and http servers
@@ -12,10 +14,10 @@ var WebSocketServer = require('websocket').server;
 var WebSocketClient = require('websocket').client;
 var http = require('http');
 
-var webSocketsServerPort = 27563;
+var webSocketsServerPort = config.getS2sWebSocketsServerPort();
 
 // servers to connect with
-var servers = [ ]
+var servers = config.getS2sServersToFederate();
 // server to server connections
 var s2sConns = [ ];
 

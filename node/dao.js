@@ -4,12 +4,14 @@
 
 // require the mysql plugin
 var mysql = require('mysql');
+// require the config
+var config = require('./config');
 
 // mysql default configuration
-var serverHostname = "127.0.0.1";
-var serverPort = "3306";
-var serverUsername = "interloper"
-var serverPassword = "cold-chillin-77&&"
+var serverHostname = config.getDatabaseHostname();
+var serverPort = config.getDatabasePort();
+var serverUsername = config.getDatabaseUsername();
+var serverPassword = config.getDatabasePassword();
 var currentDatabaseVersion = 0;
 var dbCreated = false;
 
