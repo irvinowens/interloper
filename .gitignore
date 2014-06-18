@@ -2,3 +2,4 @@ nohup.out
 *.sql
 .idea/*
 node_modules/*
+node/environments/*

@@ -76,7 +76,71 @@ module.exports = function(grunt) {
         tasks: ['jshint:lib_test', 'qunit']
       }
     },
-    clean: ["html/build", "html/js"]
+    clean: ["html/build", "html/js"],
+    copy: {
+        prod: {
+          files : [
+                {
+                   expand: true,
+                   src: 'node/config.js',
+                   dest: 'node/environments/',
+                   rename : function(dest, src){
+                       return dest + "config-old.js"
+                   }
+                },
+                {
+                  expand: true,
+                  src: 'node/environments/config-prod.js',
+                  dest: 'node/',
+                  rename : function(dest, src){
+                     return dest + "config.js"
+                  }
+                }
+            ]
+        },
+        stage :{
+                files : [
+                    {
+                       expand: true,
+                       src: 'node/config.js',
+                       dest: 'node/environments/',
+                       rename : function(dest, src){
+                           return dest + "config-old.js"
+                       }
+                    },
+                    {
+                      expand: true,
+                      src: 'node/environments/config-stage.js',
+                      dest: 'node/',
+                      rename : function(dest, src){
+                         return dest + "config.js"
+                      }
+                    }
+                ]
+        },
+        dev : {
+                files : [
+                    {
+                       expand: true,
+                       cwd: './',
+                       src: 'node/config.js',
+                       dest: 'node/environments/',
+                       rename : function(dest, src){
+                         return dest + "config-old.js"
+                       }
+                    },
+                    {
+                      expand: true,
+                      cwd: './',
+                      src: 'node/environments/config-dev.js',
+                      dest: 'node/',
+                      rename : function(dest, src){
+                        return dest + "config.js"
+                      }
+                    }
+                ]
+              }
+    }
   });
 
   // These plugins provide necessary tasks.
@@ -87,8 +151,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-react');
 
   // Default task.
-  grunt.registerTask('default', ['react', 'concat', 'uglify']);
+  grunt.registerTask('default', ['react', 'concat', 'uglify','copy:dev']);
+  grunt.registerTask('prod',['react','concat','uglify','copy:prod']);
+  grunt.registerTask('dev', ['react', 'concat', 'uglify','copy:dev']);
+  grunt.registerTask('stage', ['react', 'concat', 'uglify','copy:stage']);
 };

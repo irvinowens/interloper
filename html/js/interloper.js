@@ -1,4 +1,4 @@
-/*! interloper - v0.0.1 - 2014-06-17
+/*! interloper - v0.0.1 - 2014-06-18
 * https://github.com/irvinowens/interloper
 * Copyright (c) 2014 Irvin Owens Jr; Licensed MIT */
 var RTCPeerConnection = null;
@@ -19411,7 +19411,7 @@ if (typeof define === 'function' && define.amd) {
 * The Address for the remote websocket server we want to use
 */
 
-wsAddr = 'ws://ec2-54-184-126-128.us-west-2.compute.amazonaws.com:1337';
+wsAddr = 'ws://ec2-54-184-126-128.us-west-2.compute.amazonaws.com/websocket';
 
 /**
 * The Interloper scope contains the model
