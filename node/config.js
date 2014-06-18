@@ -7,10 +7,10 @@ var config = {
   * Configuration settings for the mysql database master
   */
   database : {
-     databaseHostname : "127.0.0.1",
-     databaseUsername : "interloper",
-     databasePassword : "cold-chillin-77&&",
-     databasePort : "3306"
+     databaseHostname : "mydbaddress",
+     databaseUsername : "mydbusername",
+     databasePassword : "mydbpassword",
+     databasePort : "mydbportnumber"
   },
   /**
   * Server to server configuration options for federation
@@ -27,7 +27,7 @@ var config = {
   */
   c2s : {
     websocketServerPort : 1337,
-    fullServerHostname : "http://ec2-54-184-126-128.us-west-2.compute.amazonaws.com"
+    fullServerHostname : "myfullwebserverhostnameincludinghttp(s)"
   }
 }
 
