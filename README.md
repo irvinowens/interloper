@@ -11,6 +11,10 @@ layer, but also preserved the privacy, and durability of data by keeping it on
  the machines of all of the participants.  Think of it as a mesh twitter with no
  central authority holding all of the content.
  
+Posts can use Markdown and be generally as long as one wishes.  The server is
+limited to 4096 kb and you can reduce that if you wish to keep the bandwidth
+down.
+ 
 ### Usage
 
 Clone the repository, then change the endpoint to match your 

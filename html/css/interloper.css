@@ -48,6 +48,36 @@ div#notification{
   -moz-transform: translate(0px, 0px);
 }
 
+div.hideMask {
+   position: fixed;
+   z-index: 700;
+   opacity: 0.8;
+   top: 0px;
+   left: 0px;
+   width: 100%;
+   height: 100%;
+   transition: 1s ease-in-out;
+   -webkit-transition: 1s ease-in-out;
+   -moz-transition: 1s ease-in-out;
+   display: none;
+   background-color: #fff;
+}
+
+div.showMask {
+   position: fixed;
+   z-index: 700;
+   opacity: 0.8;
+   top: 0px;
+   left: 0px;
+   width: 100%;
+   height: 100%;
+   transition: 1s ease-in-out;
+   -webkit-transition: 1s ease-in-out;
+   -moz-transition: 1s ease-in-out;
+   display: block;
+   background-color: #fff;
+}
+
 div#title{
 position:relative;
 text-align:left;
@@ -68,7 +98,7 @@ div.login ul li, div.registration ul li {
 }
 
 input, textarea {
-  border:solid 2px;
+  border:solid 1px;
   background-color: #fff;
 }
 
@@ -133,7 +163,7 @@ div.blockList p {
   position: fixed;
   z-index: 778;
   margin: -3px 407px;
-  border: 3px solid #000;
+  border: 1px solid #000;
   width: 40px;
   height: 40px;
   background-color: #000;
@@ -187,7 +217,7 @@ div.convoWindow {
   width: 850px;
   top: 0px;
   left: -856px;
-  border: 3px solid #000;
+  border: 1px solid #000;
   transition: 1s ease-in-out;
   -webkit-transition: 1s ease-in-out;
   -moz-transition: 1s ease-in-out;
@@ -217,7 +247,6 @@ div.convoWindow div.convoPost button {
 
 div.topicMessage {
   background-color: #fff;
-  border-bottom: 3px solid #000;
   padding-left: 20px;
   padding-right: 20px;
   margin-top: -37px;

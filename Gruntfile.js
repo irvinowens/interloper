@@ -159,4 +159,5 @@ module.exports = function(grunt) {
   grunt.registerTask('prod',['react','concat','uglify','copy:prod']);
   grunt.registerTask('dev', ['react', 'concat', 'uglify','copy:dev']);
   grunt.registerTask('stage', ['react', 'concat', 'uglify','copy:stage']);
+  grunt.registerTask('ui', ['react', 'concat', 'uglify']);
 };

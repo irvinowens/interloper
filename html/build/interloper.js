@@ -761,6 +761,7 @@ var PostList = React.createClass({displayName: 'PostList',
     Interloper.setDirty();
   },
   manageBlock : function(e){
+     this.refs.mask.getDOMNode().className = "showMask";
      this.setState({
        items: Interloper.getPosts(this.state.searchText),
        searchText: this.state.searchText,
@@ -793,9 +794,11 @@ var PostList = React.createClass({displayName: 'PostList',
        conversationItems: this.state.conversationItems,
        conversationTopic: this.state.conversationTopic,
        conversationVisible: this.state.conversationVisible
-     })
+     });
+     this.refs.mask.getDOMNode().className = "hideMask";
   },
   openConversation : function(e){
+     this.refs.mask.getDOMNode().className = "showMask";
      console.log("JSON text " + e.target.getAttribute('alt'));
      var obj = JSON.parse(e.target.getAttribute('alt'));
      var conversationItems = obj.conversations;
@@ -819,6 +822,7 @@ var PostList = React.createClass({displayName: 'PostList',
        conversationTopic: this.state.conversationTopic,
        conversationVisible : "convoWindow topicInvisible"
      });
+     this.refs.mask.getDOMNode().className = "hideMask";
   },
   updateConvo : function(e){
     var items = Interloper.getPosts(this.state.searchText);
@@ -832,6 +836,32 @@ var PostList = React.createClass({displayName: 'PostList',
        conversationTopic: e,
        conversationVisible : this.state.conversationVisible
      });
+  },
+  toggleMask : function(e){
+    if(e.target.className == "hideMask"){
+       e.target.className = "showMask";
+    }else{
+       e.target.className = "hideMask";
+       this.setState({
+              items: this.state.items,
+              searchText : this.state.searchText,
+              blocked: this.state.blocked,
+              blocklistVisibility: 'none',
+              conversationItems: this.state.conversationItems,
+              conversationTopic: this.state.conversationTopic,
+              conversationVisible : "convoWindow topicInvisible"
+            });
+       React.Children.forEach(this.props.children, function(child){
+           if(child.typeOf("BlockList") != -1){
+                var style = { display: 'none' };
+                child.getDOMNode().style = style;
+           }
+           if(child.typeOf("ConversationWindow") != -1){
+             child.className = "convoWindow topicInvisible";
+           }
+       })
+    }
+
   },
   render : function(){
     var converter = new Showdown.converter();
@@ -896,6 +926,7 @@ var PostList = React.createClass({displayName: 'PostList',
       React.DOM.div( {id:"searchBox"}, 
         React.DOM.input( {id:"searchBoxInput", placeholder: " Filter", onChange:this.onChange, ref:"search"} )
       ),
+      React.DOM.div( {id:"opaqueMask", className:"hideMask", ref:"mask", onClick:this.toggleMask}),
       React.DOM.div( {className:"postList"}, 
         this.state.items.map(createItem.bind(this))
       ),
