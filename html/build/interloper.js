@@ -10,7 +10,7 @@
 * The Address for the remote websocket server we want to use
 */
 
-wsAddr = 'ws://ec2-54-184-126-128.us-west-2.compute.amazonaws.com/websocket';
+wsAddr = 'ws://interloper.technology/websocket';
 
 /**
 * The Interloper scope contains the model
