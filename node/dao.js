@@ -55,7 +55,8 @@ exports.q = function(queryStr, queryArgs, callBack){
         dbCreated = migrate(currentDatabaseVersion);
     }
     var q = conn.query(queryStr, queryArgs, callBack);
-    console.log(q.sql);
+    // only enable for debug
+    // console.log(q.sql);
     disconnect(conn);
   });
 }
