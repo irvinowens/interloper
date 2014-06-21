@@ -1,4 +1,4 @@
-/*! interloper - v0.0.1 - 2014-06-19
+/*! interloper - v0.0.1 - 2014-06-20
 * https://github.com/irvinowens/interloper
 * Copyright (c) 2014 Irvin Owens Jr; Licensed MIT */
 var RTCPeerConnection = null;
@@ -20411,4 +20411,4 @@ var ConversationWindow = React.createClass({displayName: 'ConversationWindow',
       )
     }
 });
-React.renderComponent(PostList( {pollInterval:5000} ), document.getElementById("posts"));
+React.renderComponent(PostList( {pollInterval:2000} ), document.getElementById("posts"));

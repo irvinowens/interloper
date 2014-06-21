@@ -213,8 +213,8 @@ a:hover {
 div.convoWindow {
   position: fixed;
   z-index: 888;
-  height: 900px;
-  width: 850px;
+  height: 75%;
+  width: 720px;
   top: 0px;
   left: -856px;
   border: 1px solid #000;
@@ -230,13 +230,13 @@ div.convoWindow div.convoReplies {
   margin: auto 20px;
 }
 
-div.convoWindow div.convoReplies img {
+div.convoWindow div.convoReplies img, div.topicMessage p img {
   width: 350px;
   margin: 0px auto;
 }
 
 div.convoWindow div.convoPost textarea {
-  width: 844px;
+  width: 100%;
   height: 100px;
   font-size: 36px;
 }
@@ -253,16 +253,17 @@ div.topicMessage {
 }
 
 div.convoWindow p.closeP {
-  position: float-left;
+  position: fixed;
+  right: 4px;
+  top: 4px;
   z-index: 889;
   width: 40px;
   margin: -3px -3px 0px 0px;
   height: 40px;
   background-color: #fff;
-  color: #000;
+  color: #ccc;
   font-weight: bold;
   text-align: center;
-  border: 3px solid #000;
 }
 
 div.convoWindow p.closeP:hover {

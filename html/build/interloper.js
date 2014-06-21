@@ -1010,4 +1010,4 @@ var ConversationWindow = React.createClass({displayName: 'ConversationWindow',
       )
     }
 });
-React.renderComponent(PostList( {pollInterval:5000} ), document.getElementById("posts"));
+React.renderComponent(PostList( {pollInterval:2000} ), document.getElementById("posts"));
