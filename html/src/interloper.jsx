@@ -12,6 +12,9 @@
 
 wsAddr = 'wss://interloper.technology/websocket';
 
+// we need a map of the available query params
+inviteId = getQueryVariable("invite");
+
 /**
 * The Interloper scope contains the model
 */
@@ -83,7 +86,12 @@ var Interloper = (function(){
               break;
             case "message":
               onMessage(json);
-            break;
+              break;
+            case "invite_response":
+              document.getElementById("infoMessage").innerHTML = "Send this link for a friend to join : " +
+                        "https://interloper.technology/?invite=" + json.data;
+              document.getElementById("showInfo").className = "visible";
+              break;
             default:
               console.log("Received a message that we can't process " + message.data);
               break;
@@ -296,6 +304,17 @@ var Interloper = (function(){
                                                     encodeURI(content) + '", "picUri": "' + picuri + '", "hash":"' + hash + '","href":"' + href + '" } }');
    }
 
+   // Get invitation for user
+
+   var requestInviteToken = function(){
+     if(localStorage["interloper.username"] != null){
+       comm('{ "action": "get_invite" }'}
+     }else{
+       console.log("You must be logged in to request an invitation");
+     }
+
+   }
+
    // send all message we have so far to everyone
 
    var sendAll = function(){
@@ -372,6 +391,24 @@ var Interloper = (function(){
                   '", "postContent": "' + encodeURI(content) + '", "user" : "' + user + '", "hash" : "' + hash + '", "time":"' + dateTime + '","href":"' + href + '" }';
      localStorage["interloper.posts.count"] = numPosts + 1;
      Interloper.setDirty();
+   },
+
+   // clean up the oldest item in the list
+   cleanUpOldestItem : function(){
+    var oldestItemKey = null;
+    var oldestTime = new Date().getTime();
+    for(var i=0; localStorage.length; i++){
+        var itemKey = localStorage.key(i);
+        if(itemKey.search("posts") != -1){
+            var obj = JSON.parse(localStorage.getItem(key));
+        }
+        if(obj.time < oldestTime){
+          oldestTime = obj.time
+          oldestItemKey = itemKey;
+        }
+    }
+    localStorage.removeItem(oldestItemKey));
+    localStorage["interloper.posts.count"] = parseInt(localStorage["interloper.posts.count"]) - 1;
    }
 
    // public methods
@@ -429,6 +466,7 @@ var Interloper = (function(){
          try{
            writeNextPost(picuri, content, user, hash, dateTime, href);
          }catch(e){
+           cleanUpOldestItem();
            localStorage.removeItem("interloper.posts." + numPosts);
            addPost(picuri, content, user, hash, dateTime, href);
          }
@@ -559,8 +597,10 @@ var Interloper = (function(){
        },
 
        // register
-       register : function(uname, pwd){
-         Interloper.communicate('{ "action": "register","userName": "' + uname + '","password":"' + pwd + '" }');
+       register : function(uname, pwd, invite){
+         Interloper.communicate('{ "action": "register","userName": "' +
+                                    uname + '","password":"' + pwd +
+                                    '","invite": "' + invite + '" }');
        },
 
        // communicate with server
@@ -617,11 +657,11 @@ React.renderComponent(<PostBox />, document.getElementById("postBox"));
 // registration object
 var RegistrationForm = React.createClass({
 getInitialState : function(e){
-  return {disabled:"", pwd: "Password", uname:"Username"};
+  return {disabled:"", pwd: "Password", uname:"Username", invite: window.inviteId };
 },
-handleSubmit : function(){
+handleSubmit : function(e){
   console.log("Registering user with " + this.state.uname + ", and password " + this.state.pwd);
-  Interloper.register(this.state.uname, this.state.pwd);
+  Interloper.register(this.state.uname, this.state.pwd, this.state.invite);
 },
 onChange : function(e){
     if(e.target.id == "username"){
@@ -651,7 +691,7 @@ render: function(){
         <li><input type="text" id="username" placeholder="username here"
                    onChange={this.onChange} /></li>
         <li><input type="password" id="password" placeholder="password here"
-                   onChange={this.onChange} /></li>
+                   onChange={this.onChange} /><input id="invite" type="hidden" onChange={this.onChange} /></li>
         <li><input type="button" id="register" value="Register" onClick={this.handleSubmit} /></li>
       </ul>
       </form>

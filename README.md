@@ -30,6 +30,11 @@ deploy the static content anywhere you would like.
 The node/interloper.js does domain verification so you will need to 
 change the node/config.js to match your configuration and requirements
 
+#### Registration
+
+The system works via invite.  If you decide you want for someone else to use the system
+you can invite them
+
 #### If You Use Grunt
 
 You will want to create the dev, stage, and prod config files under the node/environments

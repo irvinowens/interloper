@@ -46,6 +46,14 @@ function checkIfUserExists(name){
   return Model.userExist(name);
 }
 
+// Clean up old invites that have gone unused
+setTimeout(function(){
+  Model.cleanUpInvites(function(result){
+    console.log("Clean up invites status " + result.toString());
+  });
+  }
+}, 86400);
+
 /**
  * HTTP server
  */
@@ -146,6 +154,18 @@ wsServer.on('request', function(request) {
                 case "ping":
                   console.log("Received ping from " + clients[index].conn.remoteAddress + " at " + new Date().toLocaleString());
                   break;
+                case "get_invite":
+                  if(userLoggedIn){
+                    Model.createInviteToken(function(response){
+                      if(response){
+                         var json = JSON.stringify({action : "invite_response",
+                                                   status : "success",
+                                                   data : response});
+                        clients[index].conn.sendUTF(json);
+                      }
+                    });
+                  }
+                  break;
                 case "register":
                   console.log("Received Register message");
                   Model.userExist(messageJson.userName, function(result){
@@ -157,32 +177,38 @@ wsServer.on('request', function(request) {
                         clients[index].conn.sendUTF(json);
                         connection.close();
                       }else{
-                        Model.createUser(messageJson.userName,
-                                       clients[index].conn.remoteAddress,
-                                       messageJson.password, function(result){
-                        if(result != -1){
-                            console.log("Created user " + messageJson.userName);
-                            var json = JSON.stringify({action: "register",
-                                                   status : "success",
-                                                   data : { username : messageJson.userName,
-                                                            password : messageJson.password,
-                                                            message: "Registration success"} });
-                            console.log("Sending message back");
-                            clients[index].conn.sendUTF(json);
-                            for(var i=0;i < clients.length; i++){
-                              if(i != index){
-                                clients[i].conn.sendUTF(JSON.stringify({action: "history" }));
-                              }
+                        Model.checkInvite(messageJson.invite, function(result){
+                        if(result){
+                            Model.createUser(messageJson.userName,
+                                           clients[index].conn.remoteAddress,
+                                           messageJson.password, function(result){
+                            if(result != -1){
+                                console.log("Created user " + messageJson.userName);
+                                var json = JSON.stringify({action: "register",
+                                                       status : "success",
+                                                       data : { username : messageJson.userName,
+                                                                password : messageJson.password,
+                                                                message: "Registration success"} });
+                                console.log("Sending message back");
+                                clients[index].conn.sendUTF(json);
+                                for(var i=0;i < clients.length; i++){
+                                  if(i != index){
+                                    clients[i].conn.sendUTF(JSON.stringify({action: "history" }));
+                                  }
+                                }
+                                userLoggedIn = true;
+                                Model.deleteUsedInvite(messageJson.invite, function(result){
+                                  console.log("Delete used invite status " + result.toString());
+                                });
+                            }else{
+                               var json = JSON.stringify({action: "register",
+                                                          status : "error",
+                                                          data : "Problem creating user"});
+                               clients[index].conn.sendUTF(json);
                             }
-                            userLoggedIn = true;
-                        }else{
-                           var json = JSON.stringify({action: "register",
-                                                      status : "error",
-                                                      data : "Problem creating user"});
-                           clients[index].conn.sendUTF(json);
+                          });
                         }
-                      });
-                    }
+                    });
                   });
                   break;
                 case "login":

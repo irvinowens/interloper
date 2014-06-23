@@ -7,8 +7,8 @@ var config = require('./config');
 
 // We should be able to create a new user
 exports.createUser = function(userName, ipAddress, password, cb){
-  Dao.q("INSERT INTO interloper.users (user_id, password, username, user_ip) " +
-            "VALUES (?,SHA2(?,512),?,?)",
+  Dao.q("INSERT INTO interloper.users (user_id, password, username, user_ip, created_at) " +
+            "VALUES (?,SHA2(?,512),?,?, NOW())",
             [ exports.randomUUID(), password, userName, ipAddress ], function(err, rows){
               if(err){
                 console.error("There was an error creating the user " +
@@ -83,8 +83,8 @@ exports.userLogin = function(username, password, cb){
   Dao.q("SELECT user_id, username FROM interloper.users WHERE password=SHA2(?,512) AND username=?",
             [ password, username ], function(err,rows){
             if(err){
-              console.error("Couldn't verify this user")
-              return false;
+              console.error("Couldn't verify this user");
+              cb(false);
             }
       console.log("Login rows " + rows);
       if(rows.length == 0){
@@ -93,6 +93,62 @@ exports.userLogin = function(username, password, cb){
         cb(rows[0]);
       }
   });
+
+  // User create new invite token
+  exports.createInviteToken = function(cb){
+    var inviteId = exports.randomUUID();
+    Dao.q("INSERT INTO interloper.invites (invite_id, created_at) " +
+          "VALUES (?, NOW())", [inviteId], function(err,rows){
+          if(err){
+             console.error("Couldn't create the invite token");
+             cb(null);
+          }
+     });
+     cb(inviteId);
+  }
+
+  // Check to see if invite is still valid
+  exports.checkInvite = function(inviteId, cb){
+    Dao.q("SELECT invite_id FROM interloper.invites WHERE inviteId =?",
+         [inviteId], function(err,rows){
+         if(err){
+           console.error("Couldn't verify this invite");
+           cb(false);
+           return;
+         }
+         console.log("Invite Rows " + rows.toString());
+         if(rows.length == 0){
+           cb(false);
+         }else{
+           cb(true);
+         }
+    });
+  }
+
+  // Clean up invites that are older than 24 hours
+  exports.cleanUpInvites = function(cb){
+    Dao.q("DELETE FROM interloper.invites WHERE created_at < ADDDATE(NOW(), INTERVAL -24HOUR",null,
+       function(err,rows){
+          if(err){
+            console.error("Couldn't delete the invites");
+            cb(false);
+            return;
+          }
+          cb(true);
+       });
+  }
+
+  // Delete used invite
+  exports.deleteUsedInvite = function(inviteId, cb){
+    Dao.q("DELETE FROM interloper.invites WHERE invite_id = ?", [inviteId],
+      function(err, rows){
+        if(err){
+            console.error("Couldn't delete invite with id " + inviteId);
+            cb(false);
+        }
+        cb(true);
+      });
+  }
 }
 /*-------------------------------- DAO LIBS ---------------------------------*/
 /* randomUUID.js - Version 1.0

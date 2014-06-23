@@ -1,9 +1,9 @@
 CACHE MANIFEST
-# rev 140
+# rev 141
 NETWORK:
 *
 CACHE:
-index.html
-js/interloper.min.js
+# index.html
+# js/interloper.min.js
 img/bt_rocket.png
-css/interloper.css
+# css/interloper.css

@@ -10,7 +10,7 @@
 * The Address for the remote websocket server we want to use
 */
 
-wsAddr = 'ws://interloper.technology/websocket';
+wsAddr = 'wss://interloper.technology/websocket';
 
 /**
 * The Interloper scope contains the model

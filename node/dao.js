@@ -78,7 +78,18 @@ migrate = function(version){
            console.error('There was an error creating users table ' + err.stack);
          }
       });
-
+      exports.q('CREATE TABLE IF NOT EXISTS interloper.meta (id INT NOT NULL AUTO_INCREMENT,' +
+                ' db_version int)', null, function(err,rows){
+                    if(err){
+                      console.error('There was an error creating the meta table ' + err.stack);
+                    }
+      });
+      exports.q('CREATE TABLE IF NOT EXISTS interloper.invites (id INT NOT NULL AUTO_INCREMENT,' +
+                ' invite_id varchar(255), created_at TIMESTAMP, PRIMARY KEY(id))', null, function(err, rows{
+                  if(err){
+                    console.error('There was an error creating the invite table ' + err.stack);
+                  }
+                }));
   }
   return true;
 }
