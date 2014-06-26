@@ -18,7 +18,7 @@ div.inactive {
   display: none;
 }
 
-div#notification{
+div#notification, div#showInfo {
   position: fixed;
   top: -96px;
   margin: 0px auto;
@@ -155,7 +155,7 @@ div.blockList {
   overflow-x: hidden;
   overflow-y: auto;
   background: #fff;
-  border: 3px #000 solid;
+  box-shadow: 3px 3px 3px #222;
   top: 250px;
 }
 
@@ -217,7 +217,7 @@ div.convoWindow {
   width: 720px;
   top: 0px;
   left: -856px;
-  border: 1px solid #000;
+  box-shadow: 3px 3px 3px #222;
   transition: 1s ease-in-out;
   -webkit-transition: 1s ease-in-out;
   -moz-transition: 1s ease-in-out;

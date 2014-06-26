@@ -413,6 +413,9 @@ var Interloper = (function(){
 
    // public methods
    return {
+       requestInvite : function(){
+          requestInviteToken();
+       },
        // only refresh if flag is dirty
        setDirty : function(){
           dirty = true;
@@ -642,11 +645,19 @@ handleSubmit : function(e){
     });
   }
 },
+generateInvite : function(e){
+
+},
 render: function() {
     return (
       <div className="postBox">
-        <p><textarea id="postBox" rows="4" cols="75" placeholder="Your post here" onChange={this.onChange} ref="post" /></p>
-        <p><input type="button" id="postbutton" value="Post!" onClick={this.handleSubmit} /></p>
+        <p><textarea id="postBox" rows="4" cols="75"
+                     placeholder="Your post here"
+                     onChange={this.onChange} ref="post" /></p>
+        <p><input type="button" id="postbutton" value="Post!"
+                  onClick={this.handleSubmit} /><a href="javascript://none;"
+                                                   onClick={this.generateInvite}
+                                                   title="generate invite">Invite Someone!</a></p>
       </div>
     );
   }
