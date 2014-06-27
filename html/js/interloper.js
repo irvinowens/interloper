@@ -19682,7 +19682,7 @@ var Interloper = (function(){
         loginUser(localStorage["interloper.username"],
                          localStorage["interloper.password"]);
     }
-   }, 5400000);
+   }, 1800000);
 
    var waitForConnection = function(){
        setTimeout(
