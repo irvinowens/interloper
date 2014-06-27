@@ -85,11 +85,11 @@ migrate = function(version){
                     }
       });
       exports.q('CREATE TABLE IF NOT EXISTS interloper.invites (id INT NOT NULL AUTO_INCREMENT,' +
-                ' invite_id varchar(255), created_at TIMESTAMP, PRIMARY KEY(id))', null, function(err, rows{
+                ' invite_id varchar(255), created_at TIMESTAMP, PRIMARY KEY(id))', null, function(err, rows){
                   if(err){
                     console.error('There was an error creating the invite table ' + err.stack);
                   }
-                }));
+                });
   }
   return true;
 }

@@ -47,12 +47,11 @@ function checkIfUserExists(name){
 }
 
 // Clean up old invites that have gone unused
-setTimeout(function(){
+var cleanupInterval = setInterval(function(){
   Model.cleanUpInvites(function(result){
     console.log("Clean up invites status " + result.toString());
   });
-  }
-}, 86400);
+}, (86400 * 3600));
 
 /**
  * HTTP server
@@ -201,14 +200,26 @@ wsServer.on('request', function(request) {
                                   console.log("Delete used invite status " + result.toString());
                                 });
                             }else{
+                                console.log("Error logging in, probably no invite");
                                var json = JSON.stringify({action: "register",
                                                           status : "error",
                                                           data : "Problem creating user"});
                                clients[index].conn.sendUTF(json);
+                               connection.close();
                             }
                           });
+                        }else{
+                             console.log("Error logging in, probably no invite");
+                            var json = JSON.stringify({action: "register",
+                                                       status : "error",
+                                                       data : "Problem creating user"});
+                            clients[index].conn.sendUTF(json);
+                            setTimeout(function(){
+                                connection.close();
+                            }, 5000);
                         }
                     });
+                   }
                   });
                   break;
                 case "login":

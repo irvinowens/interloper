@@ -29,7 +29,8 @@ var Interloper = (function(){
 
   connection.onopen = function(){
       console.log("Connection open");
-      // evaluate whether we need to login at all or do we have credentials already
+      // evaluate whether we need to login at all or do we have credentials
+      // already
       if(localStorage["interloper.username"]){
            loginUser(localStorage["interloper.username"],
                      localStorage["interloper.password"]);
@@ -40,7 +41,8 @@ var Interloper = (function(){
 
   connection.onerror = function(error){
     console.log("Connection error: " + error);
-    document.getElementById("notification").innerHTML = "Connection error, click to retry!";
+    document.getElementById("notification").innerHTML = "Connection error, " +
+                                                        "click to retry!";
     document.getElementById("notification").className = "visible";
   };
 
@@ -58,7 +60,7 @@ var Interloper = (function(){
        connection.onerror = onErrorHandler;
        connection.onmessage = onMessageHandler;
        console.log("Websocket connection re-established");
-    }, 1000);
+    }, 10000);
   };
 
   connection.onmessage = function(message){
@@ -88,16 +90,19 @@ var Interloper = (function(){
               onMessage(json);
               break;
             case "invite_response":
-              document.getElementById("infoMessage").innerHTML = "Send this link for a friend to join : " +
+              document.getElementById("infoMessage").innerHTML = "Send this " +
+                        " link for a friend to join : " +
                         "https://interloper.technology/?invite=" + json.data;
               document.getElementById("showInfo").className = "visible";
               break;
             default:
-              console.log("Received a message that we can't process " + message.data);
+              console.log("Received a message that we can't process " +
+                           message.data);
               break;
           }
         } catch(e){
-          console.log('This dosen\'t look like valid JSON:  ', message.data, ' error ' + e);
+          console.log('This dosen\'t look like valid JSON:  ' +
+                message.data + ' error ' + e);
           return;
         }
         // handle incoming message
@@ -106,7 +111,8 @@ var Interloper = (function(){
 
      }catch(e){
         console.log("There was an error setting up the WS " + e);
-        document.getElementById("notification").innerHTML = "Connection error, click up here to reconnect!";
+        document.getElementById("notification").innerHTML = "Connection error,"
+         + " click up here to reconnect!";
         document.getElementById("notification").className = "visible";
      }
    // check to see if we support local storage
@@ -141,7 +147,8 @@ var Interloper = (function(){
 
    var onUnsuccessfulLogin = function(json){
       console.error("Failed login attempt, " + json.message);
-      document.getElementById("notification").innerHTML = "Failed login click to retry";
+      document.getElementById("notification").innerHTML = "Failed login " +
+        "click to retry";
       document.getElementById("notification").className = "visible";
    };
 
@@ -150,8 +157,8 @@ var Interloper = (function(){
   var onSuccessfulRegistration = function(json){
      console.log("Successful Registration, " + json);
      // disable login and registration UI
-     document.getElementById("register").style.display = "hidden";
-     document.getElementById("login").style.display = "hidden";
+     document.getElementById("register").style.display = "none";
+     document.getElementById("login").style.display = "none";
      writeLoginData(json.data.username, json.data.password);
      // make a more user friendly alert
   };
@@ -160,7 +167,8 @@ var Interloper = (function(){
 
   var onUnsuccessfulRegistration = function(json){
     console.error("Failed registration attempt, " + json.message);
-    document.getElementById("notification").innerHTML = "Failed registration click to retry";
+    document.getElementById("notification").innerHTML = "Failed registration " +
+        "click to retry";
     document.getElementById("notification").className = "visible";
   };
 
@@ -180,7 +188,11 @@ var Interloper = (function(){
        }
        else if(Notification.permission == "granted"){
          //console.log("Showing notification");
-         var notification = new Notification('Interloper Mention!', { icon: 'img/bt_rocket.png', body: htmlContent.replace(regex, " ") });
+         var notification = new Notification('Interloper Mention!',
+           {
+            icon: 'img/bt_rocket.png',
+            body: htmlContent.replace(regex, " ")
+           });
        }
        else if(Notification.permission !== 'denied'){
          console.log("We need to request permission...");
@@ -193,7 +205,11 @@ var Interloper = (function(){
 
              if(permission == "granted"){
                console.log("The user granted the notifications, so let's go");
-               var notification = new Notification('Interloper Mention!', { icon: 'img/bt_rocket.png', body: htmlContent.replace(regex, " ") });
+               var notification = new Notification('Interloper Mention!',
+               {
+                icon: 'img/bt_rocket.png',
+                body: htmlContent.replace(regex, " ")
+               });
              }
 
          });
@@ -215,9 +231,11 @@ var Interloper = (function(){
         return;
       }
     }
-    notifyIfMessageContainsMe(localStorage["interloper.username"], data.messageData);
+    notifyIfMessageContainsMe(localStorage["interloper.username"],
+        data.messageData);
     //console.log("Saving content!");
-    writeNextPost(data.picUri, decodeURI(data.messageData), user, data.hash, dateTime, href);
+    writeNextPost(data.picUri, decodeURI(data.messageData), user,
+        data.hash, dateTime, href);
     Interloper.setDirty();
   };
 
@@ -241,7 +259,8 @@ var Interloper = (function(){
    // internal login method
 
    var loginUser = function(uname, pwd){
-       comm('{ "action": "login", "userName":"' + uname + '","password":"' + pwd + '" }');
+       comm('{ "action": "login", "userName":"' + uname + '","password":"' +
+        pwd + '" }');
    }
 
    var pingInterval = setInterval(function(){
@@ -260,8 +279,10 @@ var Interloper = (function(){
                        if(connection.readyState === 2 ||
                           connection.readyState === 3){
                             console.log("Error sending! ");
-                            document.getElementById("notification").innerHTML = "Connection error, click to reconnect!";
-                            document.getElementById("notification").className = "visible";
+                            document.getElementById("notification").innerHTML =
+                                "Connection error, click to reconnect!";
+                            document.getElementById("notification").className =
+                                "visible";
                           throw new Error("Connection closed");
                         }
                        waitForConnection();
@@ -276,7 +297,8 @@ var Interloper = (function(){
      //console.log("Sending: " + message);
      var errDialog = function(){
         console.log("Error sending! " + e);
-        document.getElementById("notification").innerHTML = "Connection error, click to reconnect!";
+        document.getElementById("notification").innerHTML =
+            "Connection error, click to reconnect!";
         document.getElementById("notification").className = "visible";
      }
      try{
@@ -300,15 +322,17 @@ var Interloper = (function(){
 
    var sendPostMessage = function(username, content, picuri, hash, href) {
      //console.log("href value " + href);
-     comm('{ "action": "post", "user": "' + username + '", "data": { "messageData": "' +
-                                                    encodeURI(content) + '", "picUri": "' + picuri + '", "hash":"' + hash + '","href":"' + href + '" } }');
+     comm('{ "action": "post", "user": "' + username +
+          '", "data": { "messageData": "' +
+          encodeURI(content) + '", "picUri": "' + picuri + '", "hash":"' +
+          hash + '","href":"' + href + '" } }');
    }
 
    // Get invitation for user
 
    var requestInviteToken = function(){
      if(localStorage["interloper.username"] != null){
-       comm('{ "action": "get_invite" }'}
+       comm('{ "action": "get_invite" }');
      }else{
        console.log("You must be logged in to request an invitation");
      }
@@ -328,7 +352,8 @@ var Interloper = (function(){
        }else{
          post = Interloper.getItemFromCache("interloper.posts." + i);
        }
-       sendPostMessage(post.user, decodeURI(post.postContent), post.picuri, post.hash, post.href);
+       sendPostMessage(post.user, decodeURI(post.postContent), post.picuri,
+        post.hash, post.href);
        if(i > 1000){
          break;
        }
@@ -382,19 +407,22 @@ var Interloper = (function(){
    var writeNextPost = function(picuri, content, user, hash, dateTime, href){
      if(localStorage["interloper.username"] == null){
         console.log("You must be logged in to post");
-        document.getElementById("notification").innerHTML = "You must log in or register to post!";
+        document.getElementById("notification").innerHTML = "You must log in" +
+            " or register to post!";
         document.getElementById("notification").className = "visible";
         return;
      }
      var numPosts = parseInt(localStorage["interloper.posts.count"]);
      localStorage["interloper.posts." + numPosts] = '{ "picuri": "' + picuri +
-                  '", "postContent": "' + encodeURI(content) + '", "user" : "' + user + '", "hash" : "' + hash + '", "time":"' + dateTime + '","href":"' + href + '" }';
+                  '", "postContent": "' + encodeURI(content) + '", "user" : "' +
+                   user + '", "hash" : "' + hash + '", "time":"' +
+                   dateTime + '","href":"' + href + '" }';
      localStorage["interloper.posts.count"] = numPosts + 1;
      Interloper.setDirty();
-   },
+   }
 
    // clean up the oldest item in the list
-   cleanUpOldestItem : function(){
+   var cleanUpOldestItem = function(){
     var oldestItemKey = null;
     var oldestTime = new Date().getTime();
     for(var i=0; localStorage.length; i++){
@@ -407,8 +435,9 @@ var Interloper = (function(){
           oldestItemKey = itemKey;
         }
     }
-    localStorage.removeItem(oldestItemKey));
-    localStorage["interloper.posts.count"] = parseInt(localStorage["interloper.posts.count"]) - 1;
+    localStorage.removeItem(oldestItemKey);
+    localStorage["interloper.posts.count"] =
+        parseInt(localStorage["interloper.posts.count"]) - 1;
    }
 
    // public methods
@@ -461,7 +490,8 @@ var Interloper = (function(){
          }
          if(localStorage["interloper.username"] == null){
            console.log("You must be logged in to post");
-           document.getElementById("notification").innerHTML = "You must log in or register to post!";
+           document.getElementById("notification").innerHTML =
+            "You must log in or register to post!";
            document.getElementById("notification").className = "visible";
            return;
          }
@@ -473,7 +503,8 @@ var Interloper = (function(){
            localStorage.removeItem("interloper.posts." + numPosts);
            addPost(picuri, content, user, hash, dateTime, href);
          }
-         sendPostMessage(localStorage["interloper.username"], content, picuri, hash, href);
+         sendPostMessage(localStorage["interloper.username"], content,
+            picuri, hash, href);
          Interloper.setDirty();
        },
 
@@ -489,17 +520,21 @@ var Interloper = (function(){
          var postCount = parseInt(localStorage["interloper.posts.count"]);
          //console.log("Post Count: " + postCount);
          for(var i=(postCount - 1); i > -1; i--){
-           var parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
+           var parsedRecord =
+            Interloper.getItemFromCache("interloper.posts." + i);
            if(parsedRecord == null){
              parsedRecord = JSON.parse(localStorage["interloper.posts." + i]);
              Interloper.addItemToCache(["interloper.posts." + i],parsedRecord);
            }else{
-             parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
+             parsedRecord =
+                Interloper.getItemFromCache("interloper.posts." + i);
            }
            if(isUserBlocked(parsedRecord.user) == false){
              if(searchText == null){
-               parsedRecord.conversations = Interloper.getConversations(parsedRecord.hash);
-               parsedRecord.isPartOfConvo = Interloper.isPartOfConvo(parsedRecord.href);
+               parsedRecord.conversations =
+                Interloper.getConversations(parsedRecord.hash);
+               parsedRecord.isPartOfConvo =
+                Interloper.isPartOfConvo(parsedRecord.href);
                arr.push(parsedRecord);
              }else{
                var obj = parsedRecord
@@ -526,12 +561,14 @@ var Interloper = (function(){
           var postCount = parseInt(localStorage["interloper.posts.count"]);
           //console.log("Post Count: " + postCount);
           for(var i=(postCount - 1); i > -1; i--){
-            var parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
+            var parsedRecord =
+                Interloper.getItemFromCache("interloper.posts." + i);
             if(parsedRecord == null){
               parsedRecord = JSON.parse(localStorage["interloper.posts." + i]);
               Interloper.addItemToCache(["interloper.posts." + i],parsedRecord);
             }else{
-              parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
+              parsedRecord =
+                Interloper.getItemFromCache("interloper.posts." + i);
             }
             if(isUserBlocked(parsedRecord.user) == false){
               var obj = parsedRecord
@@ -556,12 +593,14 @@ var Interloper = (function(){
          var postCount = parseInt(localStorage["interloper.posts.count"]);
          //console.log("Post Count: " + postCount);
          for(var i=(postCount - 1); i > -1; i--){
-           var parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
+           var parsedRecord =
+            Interloper.getItemFromCache("interloper.posts." + i);
            if(parsedRecord == null){
               parsedRecord = JSON.parse(localStorage["interloper.posts." + i]);
               Interloper.addItemToCache(["interloper.posts." + i],parsedRecord);
            }else{
-              parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
+              parsedRecord =
+                Interloper.getItemFromCache("interloper.posts." + i);
            }
            if(isUserBlocked(parsedRecord.user) == false){
               var obj = parsedRecord
@@ -583,7 +622,8 @@ var Interloper = (function(){
           var postCount = parseInt(localStorage["interloper.posts.count"]);
           //console.log("Post Count: " + postCount);
           for(var i=(postCount - 1); i > -1; i--){
-           var parsedRecord = Interloper.getItemFromCache("interloper.posts." + i);
+           var parsedRecord =
+            Interloper.getItemFromCache("interloper.posts." + i);
            if(isUserBlocked(parsedRecord.user) == false){
              var obj = parsedRecord;
              if(obj.hash == href){
@@ -622,14 +662,29 @@ var Interloper = (function(){
 // post object
 var PostBox = React.createClass({
 getInitialState : function(e){
-    return { postText: "", imageUri: ""}
+    return {
+        postText: "",
+        imageUri: "",
+        canInvite : true
+    }
 },
 onChange : function(e){
-  this.setState({ postText: e.target.value, imageUri: ""});
+  this.setState({
+    postText: e.target.value,
+    imageUri: "",
+    canInvite : this.state.canInvite
+  });
 },
 handleSubmit : function(e){
-  Interloper.addPost(null, this.state.postText, localStorage["interloper.username"], md5(this.state.postText), new Date().getTime(), null);
+  Interloper.addPost(null, this.state.postText,
+            localStorage["interloper.username"],
+            md5(this.state.postText), new Date().getTime(), null);
   this.refs.post.getDOMNode().value = '';
+  this.setState({
+      postText: this.state.postText,
+      imageUri: this.state.imageUri,
+      canInvite : true
+  });
   if(!("Notification" in window)){
    console.log("This browser does not support notifications");
    return;
@@ -646,7 +701,14 @@ handleSubmit : function(e){
   }
 },
 generateInvite : function(e){
-
+    if(this.state.canInvite == true){
+        Interloper.requestInvite();
+        this.setState({
+            postText: this.state.postText,
+            imageUri: this.state.imageUri,
+            canInvite : false
+        });
+    }
 },
 render: function() {
     return (
@@ -655,9 +717,10 @@ render: function() {
                      placeholder="Your post here"
                      onChange={this.onChange} ref="post" /></p>
         <p><input type="button" id="postbutton" value="Post!"
-                  onClick={this.handleSubmit} /><a href="javascript://none;"
-                                                   onClick={this.generateInvite}
-                                                   title="generate invite">Invite Someone!</a></p>
+                  onClick={this.handleSubmit} />
+                  <a href="javascript://none;"
+                     onClick={this.generateInvite}
+                     title="generate invite" ref="genvite">Invite Someone!</a></p>
       </div>
     );
   }
@@ -668,10 +731,16 @@ React.renderComponent(<PostBox />, document.getElementById("postBox"));
 // registration object
 var RegistrationForm = React.createClass({
 getInitialState : function(e){
-  return {disabled:"", pwd: "Password", uname:"Username", invite: window.inviteId };
+  return {
+    disabled:"",
+    pwd: "Password",
+    uname:"Username",
+    invite: window.inviteId
+  };
 },
 handleSubmit : function(e){
-  console.log("Registering user with " + this.state.uname + ", and password " + this.state.pwd);
+  console.log("Registering user with " +
+  this.state.uname + ", and password " + this.state.pwd);
   Interloper.register(this.state.uname, this.state.pwd, this.state.invite);
 },
 onChange : function(e){
@@ -702,8 +771,11 @@ render: function(){
         <li><input type="text" id="username" placeholder="username here"
                    onChange={this.onChange} /></li>
         <li><input type="password" id="password" placeholder="password here"
-                   onChange={this.onChange} /><input id="invite" type="hidden" onChange={this.onChange} /></li>
-        <li><input type="button" id="register" value="Register" onClick={this.handleSubmit} /></li>
+                   onChange={this.onChange} /><input id="invite"
+                   type="hidden" onChange={this.onChange}
+                   value={this.state.invite} /></li>
+        <li><input type="button" id="register" value="Register"
+            onClick={this.handleSubmit} /></li>
       </ul>
       </form>
       <div>
@@ -713,14 +785,16 @@ render: function(){
   );
 }
 });
-React.renderComponent(<RegistrationForm />, document.getElementById("register"));
+React.renderComponent(<RegistrationForm />,
+            document.getElementById("register"));
 // login object
 var LoginForm = React.createClass({
   getInitialState : function(e){
     return {disabled:"", uname:"Username", pwd:"Password"};
   },
   handleSubmit : function(){
-    console.log("Logging in user with " + this.state.uname + ", and password " + this.state.pwd);
+    console.log("Logging in user with " + this.state.uname +
+        ", and password " + this.state.pwd);
     Interloper.login(this.state.uname, this.state.pwd);
   },
   onChange : function(e){
@@ -752,7 +826,8 @@ var LoginForm = React.createClass({
                      onChange={this.onChange} /></li>
           <li><input type="password" id="password" placeholder="password here"
                      onChange={this.onChange} /></li>
-          <li><input type="button" id="login" value="Login" onClick={this.handleSubmit} /></li>
+          <li><input type="button" id="login" value="Login"
+            onClick={this.handleSubmit} /></li>
         </ul>
         </form>
         <div>

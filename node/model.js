@@ -109,15 +109,16 @@ exports.userLogin = function(username, password, cb){
 
   // Check to see if invite is still valid
   exports.checkInvite = function(inviteId, cb){
-    Dao.q("SELECT invite_id FROM interloper.invites WHERE inviteId =?",
+    Dao.q("SELECT invite_id FROM interloper.invites WHERE invite_id =?",
          [inviteId], function(err,rows){
          if(err){
-           console.error("Couldn't verify this invite");
+           console.error("Couldn't verify this invite " + err.toString());
            cb(false);
            return;
          }
          console.log("Invite Rows " + rows.toString());
          if(rows.length == 0){
+           console.log("There were not invites matching " + inviteId.toString());
            cb(false);
          }else{
            cb(true);
@@ -127,10 +128,10 @@ exports.userLogin = function(username, password, cb){
 
   // Clean up invites that are older than 24 hours
   exports.cleanUpInvites = function(cb){
-    Dao.q("DELETE FROM interloper.invites WHERE created_at < ADDDATE(NOW(), INTERVAL -24HOUR",null,
+    Dao.q("DELETE FROM interloper.invites WHERE created_at < ADDDATE(NOW(), INTERVAL -24 HOUR)",null,
        function(err,rows){
           if(err){
-            console.error("Couldn't delete the invites");
+            console.error("Couldn't delete the invites " + err.toString());
             cb(false);
             return;
           }
@@ -143,7 +144,8 @@ exports.userLogin = function(username, password, cb){
     Dao.q("DELETE FROM interloper.invites WHERE invite_id = ?", [inviteId],
       function(err, rows){
         if(err){
-            console.error("Couldn't delete invite with id " + inviteId);
+            console.error("Couldn't delete invite with id " + inviteId +
+            ", error " + err.toString());
             cb(false);
         }
         cb(true);

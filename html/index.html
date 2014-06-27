@@ -4,8 +4,8 @@
         <title>Interloper</title>
         <link rel="stylesheet" type="text/css" href="css/interloper.css" />
         <meta name="viewport" content="width=850, initial-scale=0.4, user-scalable=no" />
-		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-		<link rel="icon" href="/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+		<link rel="icon" href="favicon.ico" type="image/x-icon" />
     </head>
     <body>
         <div id="container">
@@ -13,7 +13,7 @@
             <div id="showInfo" class="invisible">
                 <p id="infoMessage"></p>
                 <p id="closeButton"
-                   onclick="function(){ this.className = 'invisible'};">X</p>
+                   onclick="document.getElementById('showInfo').className = 'invisible'">X</p>
             </div>
             <div id="header">
                 <div id="title"><img src="img/bt_rocket.jpg" style="width: 44px;" />Interloper</div>
