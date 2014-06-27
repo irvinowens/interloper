@@ -19675,7 +19675,14 @@ var Interloper = (function(){
 
    var pingInterval = setInterval(function(){
       comm('{ "action":"ping" }');
-   }, (2 * (60 * 1000)))
+   }, (2 * (60 * 1000)));
+
+   var getUpdates = setInterval(function(){
+    if(localStorage["interloper.username"] != null){
+        loginUser(localStorage["interloper.username"],
+                         localStorage["interloper.password"]);
+    }
+   }, 5400000);
 
    var waitForConnection = function(){
        setTimeout(

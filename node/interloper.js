@@ -51,7 +51,7 @@ var cleanupInterval = setInterval(function(){
   Model.cleanUpInvites(function(result){
     console.log("Clean up invites status " + result.toString());
   });
-}, (86400 * 3600));
+}, 86400000);
 
 /**
  * HTTP server
