@@ -14,6 +14,11 @@ layer, but also preserved the privacy, and durability of data by keeping it on
 Posts can use Markdown and be generally as long as one wishes.  The server is
 limited to 4096 kb and you can reduce that if you wish to keep the bandwidth
 down.
+
+It is becoming clear that the role of servers in the future is to be neutral
+relays facilitating peer-to-peer communication so Interloper behaves like a
+mesh network.  Every user will have and transmit every message.  The web client
+will sync with the network every 30 minutes, or whenever the page is reloaded.
  
 ### Usage
 
