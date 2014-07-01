@@ -139,7 +139,29 @@ module.exports = function(grunt) {
                       }
                     }
                 ]
-              }
+              },
+        oss : {
+                        files : [
+                            {
+                               expand: true,
+                               cwd: './',
+                               src: 'node/config.js',
+                               dest: 'node/environments/',
+                               rename : function(dest, src){
+                                 return dest + "config-old.js"
+                               }
+                            },
+                            {
+                              expand: true,
+                              cwd: './',
+                              src: 'node/environments/config-oss.js',
+                              dest: 'node/',
+                              rename : function(dest, src){
+                                return dest + "config.js"
+                              }
+                            }
+                        ]
+                      }
     }
   });
 
@@ -159,5 +181,6 @@ module.exports = function(grunt) {
   grunt.registerTask('prod',['react','concat','uglify','copy:prod']);
   grunt.registerTask('dev', ['react', 'concat', 'uglify','copy:dev']);
   grunt.registerTask('stage', ['react', 'concat', 'uglify','copy:stage']);
+  grunt.registerTask('oss', [ 'react', 'concat', 'uglify', 'copy:oss']);
   grunt.registerTask('ui', ['react', 'concat', 'uglify']);
 };

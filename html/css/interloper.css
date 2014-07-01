@@ -33,7 +33,7 @@ div#notification, div#showInfo {
   font-size: 48px;
   text-align: center;
   background: #fff;
-  border: #000 3px solid;
+  box-shadow: 3px 3px 3px #222;
 }
 
 p#closeButton {
