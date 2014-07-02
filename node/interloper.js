@@ -239,10 +239,11 @@ wsServer.on('request', function(request) {
                                                             password : messageJson.password,
                                                             message: "Login success"} });
                         clients[index].conn.sendUTF(json);
-                        for(var i=0;i < clients.length; i++){
-                          if(i != index){
-                            clients[i].conn.sendUTF(JSON.stringify({action: "history" }));
-                          }
+                        // Let's only send the history command to one client
+                        var numClients = clients.length - 1;
+                        if(numClients > -1){
+                            var chosenClient = Math.floor(Math.random() * numClients);
+                            clients[chosenClient].conn.sendUTF(JSON.stringify({action: "history" }));
                         }
                       }
                   });
