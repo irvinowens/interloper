@@ -174,7 +174,7 @@ wsServer.on('request', function(request) {
                                                    status : "error",
                                                    data : "User Exists"});
                         clients[index].conn.sendUTF(json);
-                        connection.close();
+                        //connection.close();
                       }else{
                         Model.checkInvite(messageJson.invite, function(result){
                         if(result){
@@ -243,6 +243,8 @@ wsServer.on('request', function(request) {
                         var numClients = clients.length - 1;
                         if(numClients > -1){
                             var chosenClient = Math.floor(Math.random() * numClients);
+                            console.log("Chosen Client Index " + chosenClient.toString());
+                            console.log("Sending data from " + clients[chosenClient].conn.remoteAddress.toString());
                             clients[chosenClient].conn.sendUTF(JSON.stringify({action: "history" }));
                         }
                       }
