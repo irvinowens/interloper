@@ -264,7 +264,9 @@ var Interloper = (function(){
    }
 
    var pingInterval = setInterval(function(){
-      comm('{ "action":"ping" }');
+      if(localStorage["interloper.username"] != null){
+        comm('{ "action":"ping" }');
+      }
    }, (2 * (60 * 1000)));
 
    var getUpdates = setInterval(function(){
