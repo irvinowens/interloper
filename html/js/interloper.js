@@ -19578,7 +19578,7 @@ var Interloper = (function(){
   var onUnsuccessfulRegistration = function(json){
     console.error("Failed registration attempt, " + json.message);
     document.getElementById("notification").innerHTML = "Failed registration " +
-        "click to retry";
+        "get invite, then click to retry";
     document.getElementById("notification").className = "visible";
   };
 

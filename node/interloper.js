@@ -124,6 +124,7 @@ wsServer.on('request', function(request) {
     console.log("Client Address " + address);
     var userName = false;
     var userLoggedIn = false;
+    var loginAttempts = 0;
 
 
     console.log((new Date()) + ' Connection accepted.');
@@ -205,7 +206,10 @@ wsServer.on('request', function(request) {
                                                           status : "error",
                                                           data : "Problem creating user"});
                                clients[index].conn.sendUTF(json);
-                               connection.close();
+                               loginAttempts = loginAttempts + 1;
+                               if(loginAttempts > 20){
+                                connection.close();
+                               }
                             }
                           });
                         }else{
@@ -231,6 +235,10 @@ wsServer.on('request', function(request) {
                                                    status : "error",
                                                    data : "Login failure"});
                         clients[index].conn.sendUTF(json);
+                        loginAttempts = loginAttempts + 1;
+                        if(loginAttempts > 20){
+                            connection.close();
+                        }
                       }else{
                         userLoggedIn = true;
                         var json = JSON.stringify({action: "login",
