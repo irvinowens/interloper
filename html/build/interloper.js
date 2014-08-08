@@ -667,7 +667,8 @@ var Interloper = (function(){
        }
    };
 })();
-
+// turn on touch events
+React.initializeTouchEvents(true);
 // post object
 var PostBox = React.createClass({displayName: 'PostBox',
 getInitialState : function(e){
@@ -726,9 +727,9 @@ render: function() {
                      placeholder:"Your post here",
                      onChange:this.onChange, ref:"post"} )),
         React.DOM.p(null, React.DOM.input( {type:"button", id:"postbutton", value:"Post!",
-                  onClick:this.handleSubmit} ),
+                  onClick:this.handleSubmit, onTouchEnd:this.handleSubmit} ),
                   React.DOM.a( {href:"javascript://none;",
-                     onClick:this.generateInvite,
+                     onClick:this.generateInvite, onTouchEnd:this.generateInvite,
                      title:"generate invite", ref:"genvite"}, "Invite Someone!"))
       )
     );
@@ -784,11 +785,11 @@ render: function(){
                    type:"hidden", onChange:this.onChange,
                    value:this.state.invite} )),
         React.DOM.li(null, React.DOM.input( {type:"button", id:"register", value:"Register",
-            onClick:this.handleSubmit} ))
+            onClick:this.handleSubmit, onTouchEnd:this.handleSubmit} ))
       )
       ),
       React.DOM.div(null, 
-        React.DOM.a( {onClick:this.toggleLoginReg}, "already a user? login here")
+        React.DOM.a( {onClick:this.toggleLoginReg, onTouchEnd:this.toggleLoginReg}, "already a user? login here")
       )
     )
   );
@@ -836,11 +837,11 @@ var LoginForm = React.createClass({displayName: 'LoginForm',
           React.DOM.li(null, React.DOM.input( {type:"password", id:"password", placeholder:"password here",
                      onChange:this.onChange} )),
           React.DOM.li(null, React.DOM.input( {type:"button", id:"login", value:"Login",
-            onClick:this.handleSubmit} ))
+            onClick:this.handleSubmit, onTouchEnd:this.handleSubmit} ))
         )
         ),
         React.DOM.div(null, 
-          React.DOM.a( {onClick:this.toggleLoginReg}, "not a user yet? register here")
+          React.DOM.a( {onClick:this.toggleLoginReg, onTouchEnd:this.toggleLoginReg}, "not a user yet? register here")
         )
       )
     );
@@ -1034,9 +1035,9 @@ var PostList = React.createClass({displayName: 'PostList',
                            __html : converter.makeHtml(decodeURI(item.postContent).replace(/&/g, "&amp;").replace(/</g, "&lt;") + " " + anchorMarkup)
                       }} ),
                       React.DOM.div(null, 
-                        React.DOM.span( {className:"smalltext"}, item.user, " ( ", React.DOM.a( {href:"javascript://noscript;", onClick:this.manageBlock, alt:item.user}, "manage"), " |",
-                                                                  React.DOM.a( {href:"javascript://noscript;", onClick:this.blockUser, alt:item.user},  " block"), " )"+' '+
-                         "- ", itemDateTime, " - ", React.DOM.a( {href:"javascript://noscript;", onClick:this.openConversation, alt:JSON.stringify(item)}, conversationIndication))
+                        React.DOM.span( {className:"smalltext"}, item.user, " ( ", React.DOM.a( {href:"javascript://noscript;", onClick:this.manageBlock, onTouchEnd:this.manageBlock, alt:item.user}, "manage"), " |",
+                                                                  React.DOM.a( {href:"javascript://noscript;", onClick:this.blockUser, onTouchEnd:this.blockUser, alt:item.user},  " block"), " )"+' '+
+                         "- ", itemDateTime, " - ", React.DOM.a( {href:"javascript://noscript;", onClick:this.openConversation, onTouchEnd:this.openConversation, alt:JSON.stringify(item)}, conversationIndication))
                       )
                     );
     };
@@ -1061,7 +1062,7 @@ var PostList = React.createClass({displayName: 'PostList',
       React.DOM.div( {id:"searchBox"}, 
         React.DOM.input( {id:"searchBoxInput", placeholder: " Filter", onChange:this.onChange, ref:"search"} )
       ),
-      React.DOM.div( {id:"opaqueMask", className:"hideMask", ref:"mask", onClick:this.toggleMask}),
+      React.DOM.div( {id:"opaqueMask", className:"hideMask", ref:"mask", onClick:this.toggleMask, onTouchEnd:this.toggleMask}),
       React.DOM.div( {className:"postList"}, 
         this.state.items.map(createItem.bind(this))
       ),
@@ -1093,12 +1094,12 @@ var BlockList = React.createClass({displayName: 'BlockList',
       var createUserFromList = function(item){
         var unblockText = "Unblock " + item
         index++;
-        return React.DOM.li( {className:"userBlockItem", key:index}, React.DOM.a( {href:"javascript://noscript;", onClick:this.onClick, alt:unblockText, ref:item}, unblockText))
+        return React.DOM.li( {className:"userBlockItem", key:index}, React.DOM.a( {href:"javascript://noscript;", onClick:this.onClick, onTouchEnd:this.onClick, alt:unblockText, ref:item}, unblockText))
       };
       var blockListStyle = { display: this.props.display };
       return (
         React.DOM.div( {className:"blockList", ref:"blocklist", style:blockListStyle}, 
-          React.DOM.p( {onClick:this.closeBlockList}, "X"),
+          React.DOM.p( {onClick:this.closeBlockList, onTouchEnd:this.closeBlockList}, "X"),
           React.DOM.ul( {className:"userBlockList"}, 
             this.props.items.map(createUserFromList.bind(this))
           )
@@ -1125,7 +1126,7 @@ var ConversationWindow = React.createClass({displayName: 'ConversationWindow',
       var converter = new Showdown.converter();
       return (
          React.DOM.div( {className:this.props.convoVisible, ref:"convo"}, 
-            React.DOM.p( {className:"closeP", onClick:this.props.onHide}, "X"),
+            React.DOM.p( {className:"closeP", onClick:this.props.onHide, onTouchEnd:this.props.onHide}, "X"),
             React.DOM.div( {className:"topicMessage"}, 
                React.DOM.div( {dangerouslySetInnerHTML:{
                     __html : converter.makeHtml(decodeURI(this.props.topic.postContent).replace(/&/g, "&amp;").replace(/</g, "&lt;"))
@@ -1136,7 +1137,7 @@ var ConversationWindow = React.createClass({displayName: 'ConversationWindow',
             ),
             React.DOM.div( {className:"convoPost"}, 
                React.DOM.p(null, React.DOM.textarea( {id:"postBox", placeholder:"Your reply here", ref:"reply"} )),
-               React.DOM.p(null, React.DOM.input( {type:"button", value:"Reply!", onClick:this.handleSubmit} ))
+               React.DOM.p(null, React.DOM.input( {type:"button", value:"Reply!", onClick:this.handleSubmit, onTouchEnd:this.handleSubmit} ))
             ),
             React.DOM.div( {className:"convoReplies"}, 
                this.props.items.map(this.props.createItem.bind(this))

@@ -667,7 +667,8 @@ var Interloper = (function(){
        }
    };
 })();
-
+// turn on touch events
+React.initializeTouchEvents(true);
 // post object
 var PostBox = React.createClass({
 getInitialState : function(e){
@@ -726,9 +727,9 @@ render: function() {
                      placeholder="Your post here"
                      onChange={this.onChange} ref="post" /></p>
         <p><input type="button" id="postbutton" value="Post!"
-                  onClick={this.handleSubmit} />
+                  onClick={this.handleSubmit} onTouchEnd={this.handleSubmit} />
                   <a href="javascript://none;"
-                     onClick={this.generateInvite}
+                     onClick={this.generateInvite} onTouchEnd={this.generateInvite}
                      title="generate invite" ref="genvite">Invite Someone!</a></p>
       </div>
     );
@@ -784,11 +785,11 @@ render: function(){
                    type="hidden" onChange={this.onChange}
                    value={this.state.invite} /></li>
         <li><input type="button" id="register" value="Register"
-            onClick={this.handleSubmit} /></li>
+            onClick={this.handleSubmit} onTouchEnd={this.handleSubmit} /></li>
       </ul>
       </form>
       <div>
-        <a onClick={this.toggleLoginReg}>already a user? login here</a>
+        <a onClick={this.toggleLoginReg} onTouchEnd={this.toggleLoginReg}>already a user? login here</a>
       </div>
     </div>
   );
@@ -836,11 +837,11 @@ var LoginForm = React.createClass({
           <li><input type="password" id="password" placeholder="password here"
                      onChange={this.onChange} /></li>
           <li><input type="button" id="login" value="Login"
-            onClick={this.handleSubmit} /></li>
+            onClick={this.handleSubmit} onTouchEnd={this.handleSubmit} /></li>
         </ul>
         </form>
         <div>
-          <a onClick={this.toggleLoginReg}>not a user yet? register here</a>
+          <a onClick={this.toggleLoginReg} onTouchEnd={this.toggleLoginReg}>not a user yet? register here</a>
         </div>
       </div>
     );
@@ -1034,9 +1035,9 @@ var PostList = React.createClass({
                            __html : converter.makeHtml(decodeURI(item.postContent).replace(/&/g, "&amp;").replace(/</g, "&lt;") + " " + anchorMarkup)
                       }} />
                       <div>
-                        <span className="smalltext">{item.user} ( <a href="javascript://noscript;" onClick={this.manageBlock} alt={item.user}>manage</a> |
-                                                                  <a href="javascript://noscript;" onClick={this.blockUser} alt={item.user}> block</a> )
-                         - {itemDateTime} - <a href="javascript://noscript;" onClick={this.openConversation} alt={JSON.stringify(item)}>{conversationIndication}</a></span>
+                        <span className="smalltext">{item.user} ( <a href="javascript://noscript;" onClick={this.manageBlock} onTouchEnd={this.manageBlock} alt={item.user}>manage</a> |
+                                                                  <a href="javascript://noscript;" onClick={this.blockUser} onTouchEnd={this.blockUser} alt={item.user}> block</a> )
+                         - {itemDateTime} - <a href="javascript://noscript;" onClick={this.openConversation} onTouchEnd={this.openConversation} alt={JSON.stringify(item)}>{conversationIndication}</a></span>
                       </div>
                     </div>;
     };
@@ -1061,7 +1062,7 @@ var PostList = React.createClass({
       <div id="searchBox">
         <input id="searchBoxInput" placeholder=" Filter" onChange={this.onChange} ref="search" />
       </div>
-      <div id="opaqueMask" className="hideMask" ref="mask" onClick={this.toggleMask}></div>
+      <div id="opaqueMask" className="hideMask" ref="mask" onClick={this.toggleMask} onTouchEnd={this.toggleMask}></div>
       <div className="postList">
         {this.state.items.map(createItem.bind(this))}
       </div>
@@ -1093,12 +1094,12 @@ var BlockList = React.createClass({
       var createUserFromList = function(item){
         var unblockText = "Unblock " + item
         index++;
-        return <li className="userBlockItem" key={index}><a href="javascript://noscript;" onClick={this.onClick} alt={unblockText} ref={item}>{unblockText}</a></li>
+        return <li className="userBlockItem" key={index}><a href="javascript://noscript;" onClick={this.onClick} onTouchEnd={this.onClick} alt={unblockText} ref={item}>{unblockText}</a></li>
       };
       var blockListStyle = { display: this.props.display };
       return (
         <div className="blockList" ref="blocklist" style={blockListStyle}>
-          <p onClick={this.closeBlockList}>X</p>
+          <p onClick={this.closeBlockList} onTouchEnd={this.closeBlockList}>X</p>
           <ul className="userBlockList">
             {this.props.items.map(createUserFromList.bind(this))}
           </ul>
@@ -1125,7 +1126,7 @@ var ConversationWindow = React.createClass({
       var converter = new Showdown.converter();
       return (
          <div className={this.props.convoVisible} ref="convo">
-            <p className="closeP" onClick={this.props.onHide}>X</p>
+            <p className="closeP" onClick={this.props.onHide} onTouchEnd={this.props.onHide}>X</p>
             <div className="topicMessage">
                <div dangerouslySetInnerHTML={{
                     __html : converter.makeHtml(decodeURI(this.props.topic.postContent).replace(/&/g, "&amp;").replace(/</g, "&lt;"))
@@ -1136,7 +1137,7 @@ var ConversationWindow = React.createClass({
             </div>
             <div className="convoPost">
                <p><textarea id="postBox" placeholder="Your reply here" ref="reply" /></p>
-               <p><input type="button" value="Reply!" onClick={this.handleSubmit} /></p>
+               <p><input type="button" value="Reply!" onClick={this.handleSubmit} onTouchEnd={this.handleSubmit} /></p>
             </div>
             <div className="convoReplies">
                {this.props.items.map(this.props.createItem.bind(this))}
