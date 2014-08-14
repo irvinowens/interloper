@@ -125,7 +125,7 @@ input#postbutton {
 
 div#posts, div#postBox, div#postBox textarea {
   font-size: 36px;
-  width: 850px;
+  width: 90%;
   margin: 0px auto;
 }
 
@@ -158,12 +158,13 @@ div.postItem {
   margin-top: 30px;
   margin-bottom: 30px;
   font-size: 42px;
-  width: 720px;
+  width: 90%;
   word-wrap: break-word;
 }
 
 div.postItem img {
   width: 720px;
+  margin: 0px 34%;
 }
 
 div.blockList {

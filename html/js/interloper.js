@@ -1,4 +1,4 @@
-/*! interloper - v0.0.1 - 2014-08-08
+/*! interloper - v0.0.1 - 2014-08-14
 * https://github.com/irvinowens/interloper
 * Copyright (c) 2014 Irvin Owens Jr; Licensed MIT */
 var RTCPeerConnection = null;
